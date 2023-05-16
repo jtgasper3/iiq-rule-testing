@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule language="beanshell"  name="Local - Raw Rule Test" type="IdentityAttribute">
+  <Description>
+     Identity attribute rule to map Source of Identity attribute to corresponding value based on match found on the link.
+  </Description>
+  <Signature returnType="String">
+    <Inputs>
+      <Argument name="log">
+        <Description>
+          The log object associated with the SailPointContext.
+        </Description>
+      </Argument>
+      <Argument name="context">
+        <Description>
+          A sailpoint.api.SailPointContext object that can be used to query the database if necessary.
+        </Description>
+      </Argument>
+      <Argument name="environment" type="Map">
+        <Description>
+           Arguments passed to the aggregation or refresh task.
+        </Description>
+      </Argument>
+    </Inputs>
+    <Returns>
+      <Argument name="someValue">
+        <Description>
+          The value of the something.
+        </Description>
+      </Argument>
+    </Returns>
+  </Signature>
+  <Source>
+    return "This is a test";
+  </Source>
+</Rule>
