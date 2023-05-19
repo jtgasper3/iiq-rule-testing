@@ -1,4 +1,4 @@
-package mocks;
+package sailpoint.iiq.testing;
 
 import sailpoint.api.SailPointContext;
 import sailpoint.object.Rule;
@@ -16,13 +16,22 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * Factory that creates a context and populates the applications and a RuleRunner
+ * Factory that creates a mock {@link SailPointContext} with .runRule() and .runScript() methods implemented.
+ *
+ * Other methods must be explicitly mocked. For example:
+ *
+ * <pre>
+ * when(context.getObject(Application.class, name)).thenReturn(app);
+ * when(context.getObject(Custom.class, CUSTOM_GRACE_PERIOD_MAP.getName())).thenReturn(CUSTOM_GRACE_PERIOD_MAP);
+ * when(context.getObjectByName(Identity.class, IDENTITY_ID)).thenReturn(identity);
+ * when(context.getReferencedObject("sailpoint.object.Application", id, name)).thenReturn(app);
+ * </pre>
  */
 public class MockSailPointContextFactory {
 
     /**
-     * Creates a MockSailPointContext.
-     * @return a MockSailPointContext that is preloaded with Applications and a RuleRunner
+     * Creates a SailPointContext.
+     * @return a MockSailPointContext that has .runRule() and .runScript() methods implemented
      * @throws Exception any exception
      */
     public static SailPointContext createContext() throws Exception {
@@ -34,14 +43,14 @@ public class MockSailPointContextFactory {
     private static SailPointContext buildContext() throws Exception {
         SailPointContext context = spy(SailPointContext.class);
 
-        configRuleRunner(context);
-        configScriptRunner(context);
+        RuleRunner ruleRunner = new BSFRuleRunner();
+        configRuleRunner(context, ruleRunner);
+        configScriptRunner(context, ruleRunner);
 
         return context;
     }
 
-    private static void configRuleRunner(SailPointContext context) throws GeneralException {
-        RuleRunner ruleRunner = new BSFRuleRunner();
+    private static void configRuleRunner(SailPointContext context, RuleRunner ruleRunner) throws GeneralException {
         when(context.runRule(any(Rule.class), any(Map.class))).thenAnswer(
                 invocation -> ruleRunner.runRule(invocation.getArgument(0), invocation.getArgument(1))
         );
@@ -50,8 +59,7 @@ public class MockSailPointContextFactory {
         );
     }
 
-    private static void configScriptRunner(SailPointContext context) throws GeneralException {
-        RuleRunner ruleRunner = new BSFRuleRunner();
+    private static void configScriptRunner(SailPointContext context, RuleRunner ruleRunner) throws GeneralException {
         when(context.runScript(any(Script.class), any(Map.class))).thenAnswer(
                 invocation -> ruleRunner.runScript(invocation.getArgument(0), invocation.getArgument(1))
         );

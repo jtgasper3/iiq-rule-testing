@@ -1,4 +1,4 @@
-import helpers.AbstractRuleTests;
+import sailpoint.iiq.testing.AbstractSailPointContextTests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
@@ -9,9 +9,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
-public class RawRuleAndScriptTests extends AbstractRuleTests {
-    private static final Log log = LogFactory.getLog(RawRuleAndScriptTests.class);
+public class RawSailPointContextAndScriptTests extends AbstractSailPointContextTests {
+    private static final Log log = LogFactory.getLog(RawSailPointContextAndScriptTests.class);
 
     @Test
     void rawRuleTest() throws Exception {

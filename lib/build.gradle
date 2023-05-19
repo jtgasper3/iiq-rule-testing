@@ -16,8 +16,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.9
+targetCompatibility = 1.9
 
 dependencies {
     // Extracted from the SailPoint IIQ war download
