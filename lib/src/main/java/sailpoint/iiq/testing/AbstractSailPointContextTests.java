@@ -27,10 +27,10 @@ import static org.mockito.Mockito.*;
 
 /**
  * Abstract JUnit test class that provides support for testing SailPoint IIQ Rules, etc.
- *
+ * <p>
  * This class initializes a mock {@link SailPointContext}. It has methods for creating SailPoint IIQ objects from
  * SailPoint DTD compliant XML files/strings and running {@link Rule}s and {@link Script}s.
- *
+ * <p>
  * Example which loads an application file, a barebones identity file (just the data, roles, and app links we need),
  * runs a script which calls a Rule library, and validates the data:
  * <pre>
@@ -168,7 +168,7 @@ public abstract class AbstractSailPointContextTests {
         script.setSource(scriptSource);
 
         final List<Rule> rules = ruleFilepaths.stream()
-                .map(ruleResourceName -> createRule(ruleResourceName))
+                .map(AbstractSailPointContextTests::createRule)
                 .collect(Collectors.toList());
 
         return runScript(script, args, rules, log);
