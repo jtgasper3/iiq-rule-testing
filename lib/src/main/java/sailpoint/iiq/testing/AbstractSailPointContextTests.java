@@ -6,16 +6,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import sailpoint.api.SailPointContext;
+import sailpoint.object.Application;
 import sailpoint.object.Rule;
 import sailpoint.object.Script;
 import sailpoint.tools.Brand;
 import sailpoint.tools.BrandingService;
 import sailpoint.tools.BrandingServiceFactory;
+import sailpoint.tools.GeneralException;
 import sailpoint.tools.xml.XMLObjectFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,6 +65,7 @@ import static org.mockito.Mockito.*;
 public abstract class AbstractSailPointContextTests {
     protected SailPointContext context;
     private static MockedStatic<BrandingServiceFactory> brandingServiceFactoryMockStatic;
+    private static final Map<String, Application> APPLICATION_OBJECT_CACHE = new HashMap<>();
 
     @BeforeAll
     public static void beforeAll() {
@@ -147,7 +151,8 @@ public abstract class AbstractSailPointContextTests {
      * @return the output of the rule (type varies)
      */
     protected Object runScript(String scriptSource, Map<String, Object> args, Log log) {
-        return runScript(scriptSource, args, List.of(), log);
+        List<String> ruleFilepaths = new java.util.ArrayList<>();
+        return runScript(scriptSource, args, ruleFilepaths, log);
     }
 
     /**
@@ -177,7 +182,8 @@ public abstract class AbstractSailPointContextTests {
      * @return the output of the rule (type varies)
      */
     protected Object runScript(Script script, Map<String, Object> args, Log log) {
-        return runScript(script, args, List.of(), log);
+        List<Rule> rules = new java.util.ArrayList<>();
+        return runScript(script, args, rules, log);
     }
 
     /**
@@ -249,5 +255,35 @@ public abstract class AbstractSailPointContextTests {
      */
     public static Object xmlFileToObject(String filepath, SailPointContext context) {
         return xmlStringToObject(getStringFromFile(filepath), context);
+    }
+
+    /**
+     * Caches an {@link Application} object from disk during a Test class startup (@BeforeAll).
+     * Call loadCachedApplications() in the @BeforeEach or the @Test method to associate each cached Application
+     * object into the {@link SailPointContext}.
+     * @param id the guid to associate with the application and in Application Links in the identity xml file
+     * @param filename the Application object xml file
+     */
+    protected static void cacheTheApplication(String id, String filename) {
+        Application application = (Application) xmlFileToObject(filename);
+        application.setId(id);
+        APPLICATION_OBJECT_CACHE.put(id, application);
+    }
+
+    /**
+     *  Associate each cached Application object into the {@link SailPointContext}.
+     *  Usually used in the @BeforeEach or the @Test method.
+     */
+    protected void loadCachedApplications() {
+        APPLICATION_OBJECT_CACHE.forEach((id, app) -> {
+            String name = app.getName();
+            try {
+                when(context.getObject(Application.class, name)).thenReturn(app);
+                when(context.getObjectByName(Application.class, name)).thenReturn(app);
+                when(context.getReferencedObject("sailpoint.object.Application", id, name)).thenReturn(app);
+            } catch (GeneralException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

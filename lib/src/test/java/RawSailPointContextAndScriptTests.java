@@ -14,13 +14,16 @@ public class RawSailPointContextAndScriptTests extends AbstractSailPointContextT
 
     @Test
     void rawRuleTest() throws Exception {
-        Map<String, Object> map = Map.of("context", context, "log", log, "environment", new HashMap<String, Object>());
+        Map<String, Object> argMap = new HashMap<>();
+        argMap.put("context", context);
+        argMap.put("log", log);
+        argMap.put("environment", new HashMap<String, Object>());
 
         String expected = "This is a test";
         Object actual = runRule(
                 "src/test/objects/RawRuleTest/Local-RawRuleTest.xml",
-            map,
-            log
+                argMap,
+                log
         );
 
         assertEquals(expected, actual);
@@ -28,13 +31,18 @@ public class RawSailPointContextAndScriptTests extends AbstractSailPointContextT
 
     @Test
     void rawScriptTest() throws Exception {
-        Map<String, Object> map = Map.of("input1", 20, "input2", 3);
+        Map<String, Object> argMap = new HashMap<>();
+        argMap.put("input1", 20);
+        argMap.put("input2", 3);
 
         int expected = 23;
+        List<String> ruleFilepaths = new java.util.ArrayList<>();
+        ruleFilepaths.add("src/test/objects/RawRuleTest/Local-RawRuleFunctionLibrary.xml");
+
         Object actual = runScript(
                 "addTwoNumbers(input1, input2);",
-                map,
-                List.of("src/test/objects/RawRuleTest/Local-RawRuleFunctionLibrary.xml"),
+                argMap,
+                ruleFilepaths,
                 log
         );
 
