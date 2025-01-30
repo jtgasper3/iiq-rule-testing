@@ -9,11 +9,16 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'jacoco'
     id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 sourceCompatibility = 1.8
@@ -48,13 +53,27 @@ dependencies {
     testImplementation 'org.json:json:20211205'
 }
 
-test {
-    useJUnitPlatform()
-}
-
 java {
     withSourcesJar()
     withJavadocJar()
+}
+
+tasks.withType(JavaCompile) {
+    options.debug = true
+    options.debugOptions.debugLevel = 'lines,vars,source'
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = file("${buildDir}/jacocoHtml")
+    }
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
 publishing {
