@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import sailpoint.api.SailPointContext;
 import sailpoint.object.Application;
+import sailpoint.object.Bundle;
 import sailpoint.object.Rule;
 import sailpoint.object.Script;
 import sailpoint.tools.Brand;
@@ -66,6 +67,7 @@ public abstract class AbstractSailPointContextTests {
     protected SailPointContext context;
     private static MockedStatic<BrandingServiceFactory> brandingServiceFactoryMockStatic;
     private static final Map<String, Application> APPLICATION_OBJECT_CACHE = new HashMap<>();
+    private static final Map<String, Bundle> BUNDLE_OBJECT_CACHE = new HashMap<>();
 
     @BeforeAll
     public static void beforeAll() {
@@ -281,6 +283,36 @@ public abstract class AbstractSailPointContextTests {
                 when(context.getObject(Application.class, name)).thenReturn(app);
                 when(context.getObjectByName(Application.class, name)).thenReturn(app);
                 when(context.getReferencedObject("sailpoint.object.Application", id, name)).thenReturn(app);
+            } catch (GeneralException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
+     * Caches an {@link Bundle} object from disk during a Test class startup (@BeforeAll).
+     * Call loadCachedBundles() in the @BeforeEach or the @Test method to associate each cached Bundle
+     * object into the {@link SailPointContext}.
+     * @param id the guid to associate with the bundle and in AssignedRoles Links in the identity xml file
+     * @param filename the Bundle object xml file
+     */
+    protected static void cacheTheBundle(String id, String filename) {
+        Bundle bundle = (Bundle) xmlFileToObject(filename);
+        bundle.setId(id);
+        BUNDLE_OBJECT_CACHE.put(id, bundle);
+    }
+
+    /**
+     *  Associate each cached {@link Bundle} object into the {@link SailPointContext}.
+     *  Usually used in the @BeforeEach or the @Test method.
+     */
+    protected void loadCachedBundles() {
+        BUNDLE_OBJECT_CACHE.forEach((id, bundle) -> {
+            String name = bundle.getName();
+            try {
+                when(context.getObject(Bundle.class, name)).thenReturn(bundle);
+                when(context.getObjectByName(Bundle.class, name)).thenReturn(bundle);
+                when(context.getReferencedObject("sailpoint.object.Bundle", id, name)).thenReturn(bundle);
             } catch (GeneralException e) {
                 throw new RuntimeException(e);
             }
